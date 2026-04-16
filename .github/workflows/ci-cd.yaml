@@ -27,19 +27,16 @@ jobs:
           myprecious1987/devops-demo:latest
           myprecious1987/devops-demo:${{ github.sha }}
 
-    - name: SSH key hazirla
-      run: |
-        mkdir -p ~/.ssh
-        printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions
-        chmod 600 ~/.ssh/github-actions
-        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
     - name: SSH ile Kubernetes'e deploy et
-      run: |
-        ssh -i ~/.ssh/github-actions -o StrictHostKeyChecking=no \
-          ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-          "kubectl apply -f ~/devops-demo/k8s/namespace.yaml && \
-           kubectl apply -f ~/devops-demo/k8s/deployment.yaml && \
-           kubectl apply -f ~/devops-demo/k8s/service.yaml && \
-           kubectl set image deployment/devops-demo devops-demo=myprecious1987/devops-demo:${{ github.sha }} -n devops-demo && \
-           kubectl rollout status deployment/devops-demo -n devops-demo"
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          kubectl apply -f ~/devops-demo/k8s/namespace.yaml
+          kubectl apply -f ~/devops-demo/k8s/deployment.yaml
+          kubectl apply -f ~/devops-demo/k8s/service.yaml
+          kubectl set image deployment/devops-demo devops-demo=myprecious1987/devops-demo:${{ github.sha }} -n devops-demo
+          kubectl rollout status deployment/devops-demo -n devops-demo
