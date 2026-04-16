@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-demo
+  namespace: devops-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devops-demo
+  template:
+    metadata:
+      labels:
+        app: devops-demo
+    spec:
+      containers:
+      - name: devops-demo
+        image: myprecious1987/devops-demo:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: APP_VERSION
+          value: "v1"

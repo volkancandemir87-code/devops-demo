@@ -1,0 +1,11 @@
+{
+  "name": "devops-demo",
+  "version": "1.0.0",
+  "description": "DevOps CI/CD Demo Uygulamasi",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "volkancandemir87-code",
+  "license": "MIT"
+}
