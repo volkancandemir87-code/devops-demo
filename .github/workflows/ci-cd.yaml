@@ -27,21 +27,17 @@ jobs:
           myprecious1987/devops-demo:latest
           myprecious1987/devops-demo:${{ github.sha }}
 
-    - name: Kubeconfig ayarla
-      run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
-        chmod 600 ~/.kube/config
-
-    - name: kubectl kur
-      uses: azure/setup-kubectl@v3
-
-    - name: Kubernetes'e deploy et
-      run: |
-        kubectl apply -f k8s/namespace.yaml
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
-        kubectl set image deployment/devops-demo \
-          devops-demo=myprecious1987/devops-demo:${{ github.sha }} \
-          -n devops-demo
-        kubectl rollout status deployment/devops-demo -n devops-demo
+    - name: SSH ile Kubernetes'e deploy et
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          kubectl apply -f /home/volkancandemir/devops-demo/k8s/namespace.yaml
+          kubectl apply -f /home/volkancandemir/devops-demo/k8s/deployment.yaml
+          kubectl apply -f /home/volkancandemir/devops-demo/k8s/service.yaml
+          kubectl set image deployment/devops-demo \
+            devops-demo=myprecious1987/devops-demo:${{ github.sha }} \
+            -n devops-demo
+          kubectl rollout status deployment/devops-demo -n devops-demo
